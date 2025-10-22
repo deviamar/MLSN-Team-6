@@ -1,2 +1,2 @@
-# MLSN-Team-6
-Group repo for ML project with the MLSN club.
+# MLSN Team 6
+Group repo for a Computer Vision project with the MLSN club.
