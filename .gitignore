@@ -1,0 +1,21 @@
+# virtual envs
+venv/
+cvenv/
+
+# python caches
+__pycache__/
+*.pyc
+
+# notebook junk
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+
+# models / weights (optional: keep out of git)
+*.pkl
+*.pt
+*.pth
+
+# logs
+*.log
