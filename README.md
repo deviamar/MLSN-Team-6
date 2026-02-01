@@ -1,16 +1,3 @@
-# MLSN Team 6
-Group repo for a Computer Vision project with the MLSN club!
-
-Yes — this is exactly what your README should handle:
-**environment setup + how to run + what the project does**.
-
-Below is a **complete, clean README section** you can paste directly into your `README.md`.
-It is written so a teammate on **Windows, Linux, or macOS** can follow it.
-
-You can copy-paste everything between the lines.
-
----
-
 # Facial Emotion Detection (MLSN Team 6)
 
 This project implements facial emotion recognition using two approaches:
