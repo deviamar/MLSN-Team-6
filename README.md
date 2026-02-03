@@ -6,7 +6,7 @@ This project builds and evaluates facial emotion classifiers using progressively
 2. **Deep Learning:** CNN with transfer learning (ResNet, FastAI)
 3. **Transformer:** Vision Transformer (ViT)
 
-The best model (ViT) achieved approximately **0.78 accuracy** and **0.77 macro-F1**, with most remaining errors between **neutral** and **sad**.
+The best model (ViT) achieved approximately **0.78 accuracy** and **0.77 macro-F1**. A tuned CNN (ResNet-34) achieved **0.764 accuracy** and **0.755 macro-F1**, while a Random Forest baseline reached **0.540 accuracy** and **0.530 macro-F1**. Most remaining errors occur between **neutral** and **sad** expressions.
 
 The system supports:
 
@@ -150,6 +150,13 @@ Run all cells. This will:
 emotion_detection_model.pkl
 ```
 
+Baseline result:
+
+* Accuracy ≈ **0.540**
+* Macro-F1 ≈ **0.530**
+
+This baseline highlights the limitations of pixel-level features for subtle facial expression discrimination.
+
 ---
 
 ### 2) CNN (ResNet, FastAI)
@@ -172,10 +179,13 @@ Exports:
 emotion_cnn_fixed.pkl
 ```
 
-Best CNN result:
+Results:
 
-* Accuracy ≈ **0.764**
-* Macro-F1 ≈ **0.755**
+* Naive fine-tuning peaked at **0.631 accuracy** before degrading due to overfitting.
+* Tuned model (curated data + face-safe augmentation + early stopping):
+
+  * Accuracy ≈ **0.764**
+  * Macro-F1 ≈ **0.755**
 
 ---
 
@@ -197,6 +207,21 @@ Best ViT result:
 
 * Accuracy ≈ **0.780**
 * Macro-F1 ≈ **0.771**
+
+---
+
+## Performance Summary
+
+| Model                            | Accuracy         | Macro-F1  | Notes                                                          |
+| -------------------------------- | ---------------- | --------- | -------------------------------------------------------------- |
+| Random Forest (baseline)         | **0.540**        | **0.530** | Flattened pixel features; struggles with subtle expressions    |
+| CNN (ResNet-34, naive fine-tune) | **0.631 (peak)** | ~0.55     | Started near chance (0.20) and overfit with continued training |
+| CNN (ResNet-34, tuned)           | **0.764**        | **0.755** | Curated data + face-safe augmentation + early stopping         |
+| Vision Transformer (ViT)         | **0.780**        | **0.771** | Best overall performance                                       |
+
+Notable class-level result (tuned CNN / ViT):
+
+* **Happy:** Precision ≈ **0.82**, Recall ≈ **0.88** (F1 ≈ **0.85**)
 
 ---
 
@@ -260,14 +285,9 @@ Press `q` to exit.
 
 ---
 
-## Key Takeaway
+## Key Takeaways
 
-This project demonstrates a complete applied ML pipeline:
-
-* dataset cleaning and relabeling
-* domain-aware augmentation
-* baseline → CNN → Transformer progression
-* quantitative evaluation (accuracy, macro-F1, confusion matrix)
-
-**Best model:** Vision Transformer
-**Best performance:** ~0.78 accuracy, ~0.77 macro-F1
+- The largest performance gains came from **dataset curation and preprocessing**, rather than from changing architectures.  
+- A tuned ResNet substantially outperformed a naive fine-tuning run, showing that **training protocol mattered more than model size** in this regime.  
+- Vision Transformers achieved the strongest overall results, but the improvement over a well-trained CNN was incremental, suggesting that expression ambiguity is now the dominant bottleneck.  
+- Persistent confusion between neutral and sad indicates that future progress likely depends more on **better labeling criteria or richer data** than on deeper networks alone.
