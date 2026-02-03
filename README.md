@@ -1,14 +1,18 @@
-# Facial Emotion Detection (MLSN Team 6)
+# Facial Emotion Classification (MLSN Team 6)
 
-This project implements facial emotion recognition using two approaches:
+This project builds and evaluates facial emotion classifiers using progressively stronger models under limited data and compute. Starting from a noisy Kaggle dataset, we manually curated and relabeled images into four emotions (**happy, neutral, sad, surprise**), then compared:
 
-1. **Baseline model:** Random Forest classifier trained on flattened face images
-2. **Improved model:** Convolutional Neural Network (CNN) using transfer learning (ResNet via FastAI)
+1. **Baseline:** Random Forest (traditional ML)
+2. **Deep Learning:** CNN with transfer learning (ResNet, FastAI)
+3. **Transformer:** Vision Transformer (ViT)
+
+The best model (ViT) achieved approximately **0.78 accuracy** and **0.77 macro-F1**, with most remaining errors between **neutral** and **sad**.
 
 The system supports:
 
 * Offline training and evaluation
-* Live webcam emotion prediction
+* Confusion-matrix and F1 reporting
+* Webcam-based emotion inference
 * Model export and reuse
 
 ---
@@ -18,26 +22,37 @@ The system supports:
 ```
 MLSN-Team-6/
 │
-├── images/                 # Original dataset
-├── faces_cropped/          # Face-cropped dataset (generated)
-├── improved_images/        # Alternative dataset
+├── images/                     # Raw Kaggle dataset
+├── faces_cropped/              # Face-cropped dataset (generated)
+├── improved_images/            # Manually curated final dataset
 │
 ├── facialEmotionClassifier.ipynb   # Random Forest baseline
 ├── CnnEmotionClassifier.ipynb      # CNN (FastAI)
-├── prep_faces.py                  # Face cropping preprocessing script
-├── runModel.py                    # Webcam (Random Forest)
-├── runModelCnn.py                 # Webcam (CNN)
 │
-├── emotion_detection_model.pkl    # Saved Random Forest model
-├── emotion_cnn.pkl                # Saved CNN model
-└── README.md
+├── train_cnn_fixed.py          # Stable CNN training script
+├── train_fastai.py             # General CNN training framework
+├── vit.py                      # Vision Transformer training
+├── best_cnn.py                 # Best-performing CNN config
+│
+├── prep_faces.py               # Face cropping preprocessing
+├── runModel.py                 # Webcam (Random Forest)
+├── runModelCnn.py              # Webcam (CNN)
+├── runModelSEP.py              # Alternate webcam pipeline
+│
+├── emotion_detection_model.pkl # Saved Random Forest model
+├── emotion_cnn_fixed.pkl       # Saved CNN model
+├── emotion_vit.pkl             # Saved ViT model
+│
+├── program.py                  # Shared utilities
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-## Environment Setup (All OS)
+## Environment Setup
 
-### 1. Clone the repository
+### Clone the repository
 
 ```bash
 git clone <your-repo-url>
@@ -46,7 +61,7 @@ cd MLSN-Team-6
 
 ---
 
-## Virtual Environment Setup
+## Virtual Environment
 
 ### Windows (PowerShell)
 
@@ -64,25 +79,45 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-If `requirements.txt` does not exist, install manually:
+If `requirements.txt` is missing:
 
 ```bash
-pip install fastai torch torchvision opencv-python cvlib scikit-learn seaborn matplotlib pandas numpy
+pip install fastai torch torchvision timm opencv-python cvlib scikit-learn seaborn matplotlib pandas numpy
 ```
 
 ---
 
-## Face Preprocessing (Important)
+## Dataset Preparation
 
-To improve model performance, training images are cropped using the same face detector used during webcam inference.
+### Manual Curation
 
-Run:
+We manually reviewed and filtered the Kaggle dataset, retaining approximately **700 images per class** and removing:
+
+* watermarks or large text
+* incorrect or ambiguous emotion labels
+* non-faces, heavy occlusion, or extreme blur
+
+Final structure:
+
+```
+improved_images/
+  happy/
+  neutral/
+  sad/
+  surprise/
+```
+
+---
+
+## Face Cropping (Optional but Recommended)
+
+To match webcam input, crop faces before training:
 
 ```bash
 python prep_faces.py
 ```
 
-This will create:
+This generates:
 
 ```
 faces_cropped/
@@ -92,11 +127,11 @@ faces_cropped/
   surprise/
 ```
 
-This step ensures training data matches live webcam input.
-
 ---
 
-## Train Baseline Model (Random Forest)
+## Train Models
+
+### 1) Random Forest (Baseline)
 
 Open:
 
@@ -104,12 +139,11 @@ Open:
 facialEmotionClassifier.ipynb
 ```
 
-Run all cells.
-This will:
+Run all cells. This will:
 
 * Load images
 * Extract features
-* Train RandomForest
+* Train Random Forest
 * Save model to:
 
 ```
@@ -118,33 +152,63 @@ emotion_detection_model.pkl
 
 ---
 
-## Train CNN Model (FastAI)
+### 2) CNN (ResNet, FastAI)
 
-Open:
+Run:
+
+```bash
+python train_cnn_fixed.py
+```
+
+or train interactively with:
 
 ```
 CnnEmotionClassifier.ipynb
 ```
 
-Ensure dataset path points to:
+Exports:
 
-```python
-path = Path("faces_cropped")
+```
+emotion_cnn_fixed.pkl
 ```
 
-Train model:
+Best CNN result:
 
-```python
-learn = vision_learner(dls, resnet34, metrics=[accuracy])
-learn.fine_tune(8)
-learn.export("emotion_cnn.pkl")
-```
+* Accuracy ≈ **0.764**
+* Macro-F1 ≈ **0.755**
 
 ---
 
-## Evaluate Model Performance
+### 3) Vision Transformer (ViT)
 
-After training:
+Run:
+
+```bash
+python vit.py
+```
+
+Exports:
+
+```
+emotion_vit.pkl
+```
+
+Best ViT result:
+
+* Accuracy ≈ **0.780**
+* Macro-F1 ≈ **0.771**
+
+---
+
+## Evaluation
+
+Metrics reported:
+
+* Accuracy
+* Macro-F1
+* Confusion Matrix
+
+Example:
 
 ```python
 interp = ClassificationInterpretation.from_learner(learn)
@@ -154,26 +218,30 @@ preds, targs = learn.get_preds()
 print("Accuracy:", accuracy(preds, targs).item())
 ```
 
-Metrics to report:
+Consistent error pattern:
 
-* Accuracy
-* Macro F1-score
-* Confusion matrix
+* **neutral ↔ sad confusion**
 
 ---
 
 ## Run Webcam Emotion Detection
 
-### Random Forest:
+### Random Forest
 
 ```bash
 python runModel.py
 ```
 
-### CNN:
+### CNN
 
 ```bash
 python runModelCnn.py
+```
+
+### Alternate pipeline
+
+```bash
+python runModelSEP.py
 ```
 
 Press `q` to exit.
@@ -186,4 +254,20 @@ Press `q` to exit.
 * OpenCV / cvlib
 * Scikit-learn
 * FastAI / PyTorch
-* Seaborn / Matplotlib
+* timm (ViT backbones)
+* NumPy / Pandas
+* Matplotlib / Seaborn
+
+---
+
+## Key Takeaway
+
+This project demonstrates a complete applied ML pipeline:
+
+* dataset cleaning and relabeling
+* domain-aware augmentation
+* baseline → CNN → Transformer progression
+* quantitative evaluation (accuracy, macro-F1, confusion matrix)
+
+**Best model:** Vision Transformer
+**Best performance:** ~0.78 accuracy, ~0.77 macro-F1
