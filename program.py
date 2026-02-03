@@ -1,3 +1,12 @@
+"""
+This script provides a simple Streamlit user interface to launch the emotion
+detection webcam program (runModel.py).
+
+How to run:
+    streamlit run program.py
+
+"""
+
 import streamlit as st
 import subprocess
 import sys

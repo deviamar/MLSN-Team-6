@@ -1,3 +1,13 @@
+"""
+This script trains a convolutional neural network (ResNet-34) to classify facial
+expressions from cropped face images using transfer learning with fastai.
+
+The dataset is expected to be organized in class-labeled folders (e.g., happy,
+sad, neutral, surprise). Images are resized to 224×224 and augmented during
+training. The model is fine-tuned from ImageNet-pretrained weights and exported
+as a .pkl file for use in real-time inference scripts.
+"""
+
 from fastprogress import force_console_behavior
 force_console_behavior()
 

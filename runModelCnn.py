@@ -1,3 +1,7 @@
+'''
+performs real-time facial emotion recognition by detecting faces from a webcam feed, transforming each face into an LBP-based texture representation consistent with training, and classifying it using a fastai-trained convolutional neural network.
+'''
+
 import cv2
 import numpy as np
 from skimage.feature import local_binary_pattern

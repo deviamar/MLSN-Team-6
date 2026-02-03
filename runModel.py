@@ -1,4 +1,6 @@
-
+'''
+This script performs real-time facial emotion recognition by detecting faces from a webcam feed, flattening cropped face images into raw pixel vectors, and classifying them using a pre-trained Random Forest model.
+'''
 
 import cv2
 import cvlib as cv   

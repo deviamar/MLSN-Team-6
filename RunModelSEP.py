@@ -1,3 +1,17 @@
+"""
+This script performs real-time facial emotion recognition using a classical
+computer vision pipeline based on HOG (Histogram of Oriented Gradients) features
+and a trained scikit-learn classifier.
+
+Pipeline:
+    Webcam frame → face detection → face crop → resize → grayscale
+    → HOG feature extraction → ML classifier → emotion label overlay
+
+HOG computes gradients of image brightness to capture the directions and
+strengths of edges, which makes it a color-invariant descriptor of facial shape
+and contour rather than raw pixel appearance.
+"""
+
 import cv2
 import cvlib as cv
 from skimage.feature import hog

@@ -1,0 +1,139 @@
+Here is a concise, professional **project write-up** that summarizes what you did, how you did it, and what the results mean. This is suitable for a report, README, or website project page.
+
+---
+
+# Facial Emotion Classification with Random Forest Baseline
+
+## Overview
+
+This project explores facial emotion classification using a classical machine learning baseline. Cropped face images were organized into four emotion categories: **happy, neutral, sad, and surprise**. A Random Forest classifier was trained on flattened image representations to establish a baseline before transitioning to convolutional neural network (CNN) models.
+
+The goal was to evaluate how well a non–deep-learning model can perform on this task and to understand the limitations of such an approach.
+
+---
+
+## Data
+
+The dataset consists of cropped face images stored in class-labeled folders:
+
+```
+improved_images/
+  happy/
+  neutral/
+  sad/
+  surprise/
+```
+
+Each image was resized to a fixed resolution and flattened into a feature vector. Labels were derived directly from folder names.
+
+---
+
+## Model
+
+A **RandomForestClassifier** from scikit-learn was used with the following configuration:
+
+* `n_estimators = 250`
+* `max_depth = 35`
+* `max_features = "sqrt"`
+* `min_samples_split = 4`
+* `min_samples_leaf = 2`
+* `class_weight = "balanced"`
+* `bootstrap = True`
+* `random_state = 42`
+
+This configuration was chosen to balance model capacity and overfitting while accounting for class imbalance.
+
+---
+
+## Hyperparameter Optimization
+
+To improve performance, randomized hyperparameter search was performed using **RandomizedSearchCV**:
+
+* **Search space:**
+
+  * `n_estimators`: 50–350
+  * `max_depth`: 10–None
+  * `max_features`: sqrt, log2
+  * `min_samples_split`: 2–10
+  * `min_samples_leaf`: 1–5
+
+* **Cross-validation:** 2-fold
+
+* **Iterations:** 15
+
+* **Total fits:** 30
+
+* **Scoring metric:** accuracy
+
+Example output:
+
+```
+Fitting 2 folds for each of 15 candidates, totalling 30 fits
+...
+Best hyperparameters found:
+{'n_estimators': 350, 'min_samples_split': 10, 'min_samples_leaf': 2,
+ 'max_features': 'sqrt', 'max_depth': None}
+Best cross-validated score: 0.5361
+```
+
+---
+
+## Evaluation Results
+
+Final test set performance:
+
+**Accuracy:**
+
+```
+0.5398
+```
+
+**Classification Report:**
+
+```
+              precision  recall  f1-score  support
+happy          0.54     0.72     0.62       355
+neutral        0.53     0.36     0.43       247
+sad            0.47     0.44     0.46       249
+surprise       0.66     0.57     0.61       166
+
+accuracy                           0.54      1017
+macro avg       0.55     0.52     0.53      1017
+weighted avg    0.54     0.54     0.53      1017
+```
+
+**Confusion Matrix:**
+
+```
+[[255  28  52  20]
+ [ 88  89  50  20]
+ [ 90  39 110  10]
+ [ 37  12  22  95]]
+```
+
+---
+
+## Analysis
+
+The Random Forest model achieved approximately **54% accuracy**, which is only moderately better than chance for a four-class problem. Performance was strongest for **happy** and **surprise**, and weakest for **neutral** and **sad**, which were frequently confused.
+
+This result highlights a key limitation of the approach:
+Flattening images into raw vectors destroys spatial structure. The model no longer knows which pixels belong to the mouth, eyes, or eyebrows, and therefore cannot learn meaningful geometric patterns associated with facial expressions. Random Forests treat each pixel independently and lack the ability to learn hierarchical or spatial features.
+
+---
+
+## Conclusion
+
+This experiment establishes a **classical ML baseline** for facial emotion recognition. While Random Forests can achieve modest performance, they are fundamentally limited for image-based emotion classification due to the loss of spatial relationships.
+
+These results motivate the use of **convolutional neural networks (CNNs)**, which preserve spatial structure and can learn expressive facial features such as mouth curvature and eyebrow motion. Future work focuses on CNN-based models (e.g., ResNet-34 with transfer learning) to significantly improve classification accuracy and robustness.
+
+---
+
+If you want, I can next:
+✔ rewrite this as a short website project page
+✔ rewrite it as a formal lab report
+✔ add a CNN results section
+✔ or convert this into resume bullets
+
+Just say which format you want.
